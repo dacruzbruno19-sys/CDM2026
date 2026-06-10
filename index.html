@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Coupe du Monde 2026</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap');
+:root{--ink:#0a0f1a;--paper:#f5f2ed;--pitch:#1b4332;--gold:#d4a017;--chalk:#ffffff;--line:#ddd8cf;--muted:#7a7265;--france-bg:#eef2ff;--france:#002395;--q1-bg:#d0f0e0;--q1:#1b4332;--q2-bg:#e8f6ee;--q2:#2d6a4f;--danger:#b91c1c;--row-alt:#ede9e1;}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:'Inter',sans-serif;background:var(--paper);color:var(--ink);font-size:14px;line-height:1.4;}
+#hdr{background:var(--ink);display:flex;align-items:stretch;padding:0 20px;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,.4);}
+.brand{display:flex;align-items:center;gap:10px;padding:12px 20px 12px 0;border-right:1px solid rgba(255,255,255,.1);margin-right:16px;}
+.bt1{font-family:'Oswald',sans-serif;font-weight:700;font-size:16px;color:#fff;letter-spacing:.5px;text-transform:uppercase;}
+.bt2{font-family:'Oswald',sans-serif;font-size:10px;color:var(--gold);letter-spacing:1px;text-transform:uppercase;}
+nav{display:flex;align-items:stretch;}
+.tab{font-family:'Oswald',sans-serif;font-weight:500;font-size:12px;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,.45);padding:0 16px;border:none;background:none;cursor:pointer;border-bottom:3px solid transparent;transition:.15s;white-space:nowrap;}
+.tab:hover{color:rgba(255,255,255,.8);}
+.tab.on{color:#fff;border-bottom-color:var(--gold);}
+.hright{margin-left:auto;display:flex;align-items:center;gap:6px;}
+.btn{font-family:'Oswald',sans-serif;font-weight:600;font-size:11px;letter-spacing:.8px;text-transform:uppercase;padding:6px 12px;border-radius:2px;cursor:pointer;border:none;transition:.15s;}
+.btn-g{background:var(--gold);color:var(--ink);}
+.btn-g:hover{background:#b8891a;}
+.btn-o{background:transparent;color:rgba(255,255,255,.5);border:1px solid rgba(255,255,255,.2);}
+.btn-o:hover{color:#fff;border-color:rgba(255,255,255,.5);}
+#sync-bar{display:flex;align-items:center;gap:8px;padding:7px 20px;font-size:11px;font-family:'Oswald',sans-serif;letter-spacing:.5px;background:#1a2535;color:rgba(255,255,255,.5);border-bottom:1px solid rgba(255,255,255,.08);}
+#sync-dot{width:8px;height:8px;border-radius:50%;background:#666;flex-shrink:0;transition:background .3s;}
+#sync-dot.ok{background:#22c55e;}
+#sync-dot.saving{background:var(--gold);animation:pulse .8s infinite;}
+#sync-dot.err{background:var(--danger);}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.3;}}
+.view{display:none;padding:20px;max-width:1200px;margin:0 auto;padding-bottom:60px;}
+.view.on{display:block;}
+.sec-hd{font-family:'Oswald',sans-serif;font-weight:700;font-size:17px;letter-spacing:2px;text-transform:uppercase;color:#fff;background:var(--ink);padding:9px 16px;margin:24px 0 8px;display:flex;align-items:center;gap:10px;}
+.sec-hd .acc{display:inline-block;width:4px;height:20px;background:var(--gold);}
+.day-lbl{font-family:'Oswald',sans-serif;font-weight:600;font-size:11px;letter-spacing:1px;color:var(--pitch);text-transform:uppercase;margin:10px 0 3px;display:flex;align-items:center;gap:8px;}
+.day-lbl::after{content:'';flex:1;height:1px;background:var(--line);}
+.tbl{width:100%;border-collapse:collapse;margin-bottom:2px;}
+.tbl thead tr{background:#1e2840;}
+.tbl thead th{font-family:'Oswald',sans-serif;font-size:10px;font-weight:600;letter-spacing:1px;color:rgba(255,255,255,.55);text-transform:uppercase;padding:5px 8px;text-align:center;}
+.tbl thead th.lft{text-align:left;padding-left:10px;}
+.tbl tbody tr{border-bottom:1px solid var(--line);}
+.tbl tbody tr:nth-child(odd){background:var(--chalk);}
+.tbl tbody tr:nth-child(even){background:var(--row-alt);}
+.tbl tbody tr.fr td.nc{background:var(--france-bg)!important;color:var(--france);font-weight:600;}
+.tbl td{padding:5px 8px;text-align:center;vertical-align:middle;font-size:12px;}
+.tbl td.nc{text-align:left;padding-left:10px;font-size:12px;min-width:100px;}
+.tbl td.vc{text-align:left;font-size:10px;color:var(--muted);}
+.tbl td.gc{font-family:'Oswald',sans-serif;font-weight:700;font-size:12px;color:var(--muted);}
+.ssep{font-weight:700;color:var(--muted);font-size:13px;}
+input[type=number].si,input[type=text].ti,input[type=text].qi{height:25px;border:1.5px solid var(--line);border-radius:1px;font-family:'Oswald',sans-serif;color:var(--ink);background:var(--chalk);outline:none;transition:border-color .12s,background .12s;}
+input[type=number].si{width:34px;text-align:center;font-size:14px;font-weight:700;}
+input[type=text].ti{width:115px;padding:0 5px;font-size:11px;}
+input[type=text].qi{width:105px;padding:0 5px;font-size:11px;}
+input.si:focus,input.ti:focus{border-color:var(--pitch);}
+input.qi:focus{border-color:var(--danger);}
+input.si.has{border-color:var(--gold);background:#fdf8ec;}
+input.ti.has{border-color:var(--pitch);background:#edf7f1;}
+input.qi.has{border-color:var(--danger);background:#fdf0f0;}
+.sg{display:grid;grid-template-columns:repeat(auto-fill,minmax(410px,1fr));gap:14px;margin-top:10px;}
+.sc{background:var(--chalk);border:1px solid var(--line);overflow:hidden;}
+.schd{background:var(--ink);padding:8px 14px;display:flex;align-items:baseline;gap:10px;}
+.sgl{font-family:'Oswald',sans-serif;font-weight:700;font-size:15px;letter-spacing:1px;color:var(--gold);text-transform:uppercase;}
+.stms{font-size:10px;color:rgba​​​​​​​​​​​​​​​​
