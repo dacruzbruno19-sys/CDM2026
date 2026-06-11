@@ -1,4 +1,4 @@
-
+<!DOCTYPE html>
 
 <html lang="fr">
 <head>
@@ -237,6 +237,22 @@ const GRP={
   L:['Angleterre','Croatie','Ghana','Panama'],
 };
 
+
+// Kickoff times are UTC (Paris CEST = UTC+2, so 21:00 Paris = 19:00 UTC)
+function parisToUTC(dateStr, timeStr) {
+  // dateStr: "2026-06-11", timeStr: "21:00" (Paris CEST = UTC+2)
+  const [h, m] = timeStr.split(':').map(Number);
+  const utcH = h - 2; // CEST offset
+  const d = new Date(`${dateStr}T${String(utcH < 0 ? utcH + 24 : utcH).padStart(2,'0')}:${String(m).padStart(2,'0')}:00Z`);
+  if (utcH < 0) d.setDate(d.getDate() - 1);
+  return d.getTime();
+}
+
+function isLocked(match) {
+  if (!match.utc) return false;
+  return Date.now() >= match.utc;
+}
+
 const GDAYS=[
   {day:'Jeudi 11 juin',m:[{h:'21:00',t1:'Mexique',g:'A',t2:'Afrique du Sud',s:'Estadio Azteca, Mexico City'},{h:'04:00',t1:'Corée du Sud',g:'A',t2:'Tchéquie',s:'Estadio Akron, Guadalajara'}]},
   {day:'Vendredi 12 juin',m:[{h:'21:00',t1:'Canada',g:'B',t2:'Bosnie-Herzégovine',s:'BMO Field, Toronto'},{h:'03:00',t1:'États-Unis',g:'D',t2:'Paraguay',s:'SoFi Stadium, Los Angeles'}]},
@@ -293,6 +309,102 @@ GDAYS.forEach(d=>d.m.forEach(m=>{(GMR[m.g]||(GMR[m.g]=[])).push(m);}));
 const ALL_MATCHES=[];
 GDAYS.forEach(d=>d.m.forEach(m=>{ALL_MATCHES.push({...m,dayLabel:d.day});}));
 KO.forEach((sec,si)=>sec.days.forEach((d,di)=>d.m.forEach((m,mi)=>{ALL_MATCHES.push({...m,dayLabel:d.day,koKey:`k${si}_${di}_${mi}`});})));
+
+
+const KICKOFFS = {
+  // Groupe A
+  "gA_0": new Date("2026-06-11T19:00:00Z").getTime(),
+  "gA_1": new Date("2026-06-11T22:00:00Z").getTime(),
+  "gA_2": new Date("2026-06-18T01:00:00Z").getTime(),
+  "gA_3": new Date("2026-06-18T16:00:00Z").getTime(),
+  "gA_4": new Date("2026-06-24T01:00:00Z").getTime(),
+  "gA_5": new Date("2026-06-24T01:00:00Z").getTime(),
+  // Groupe B
+  "gB_0": new Date("2026-06-12T19:00:00Z").getTime(),
+  "gB_1": new Date("2026-06-13T19:00:00Z").getTime(),
+  "gB_2": new Date("2026-06-18T19:00:00Z").getTime(),
+  "gB_3": new Date("2026-06-18T22:00:00Z").getTime(),
+  "gB_4": new Date("2026-06-24T19:00:00Z").getTime(),
+  "gB_5": new Date("2026-06-24T19:00:00Z").getTime(),
+  // Groupe C
+  "gC_0": new Date("2026-06-13T22:00:00Z").getTime(),
+  "gC_1": new Date("2026-06-14T01:00:00Z").getTime(),
+  "gC_2": new Date("2026-06-19T22:30:00Z").getTime(),
+  "gC_3": new Date("2026-06-19T22:00:00Z").getTime(),
+  "gC_4": new Date("2026-06-25T22:00:00Z").getTime(),
+  "gC_5": new Date("2026-06-25T22:00:00Z").getTime(),
+  // Groupe D
+  "gD_0": new Date("2026-06-13T01:00:00Z").getTime(),
+  "gD_1": new Date("2026-06-14T04:00:00Z").getTime(),
+  "gD_2": new Date("2026-06-19T19:00:00Z").getTime(),
+  "gD_3": new Date("2026-06-19T03:00:00Z").getTime(),
+  "gD_4": new Date("2026-06-25T02:00:00Z").getTime(),
+  "gD_5": new Date("2026-06-25T02:00:00Z").getTime(),
+  // Groupe E
+  "gE_0": new Date("2026-06-14T17:00:00Z").getTime(),
+  "gE_1": new Date("2026-06-14T23:00:00Z").getTime(),
+  "gE_2": new Date("2026-06-20T20:00:00Z").getTime(),
+  "gE_3": new Date("2026-06-21T00:00:00Z").getTime(),
+  "gE_4": new Date("2026-06-25T20:00:00Z").getTime(),
+  "gE_5": new Date("2026-06-25T20:00:00Z").getTime(),
+  // Groupe F
+  "gF_0": new Date("2026-06-14T20:00:00Z").getTime(),
+  "gF_1": new Date("2026-06-15T02:00:00Z").getTime(),
+  "gF_2": new Date("2026-06-20T17:00:00Z").getTime(),
+  "gF_3": new Date("2026-06-21T04:00:00Z").getTime(),
+  "gF_4": new Date("2026-06-25T23:00:00Z").getTime(),
+  "gF_5": new Date("2026-06-25T23:00:00Z").getTime(),
+  // Groupe G
+  "gG_0": new Date("2026-06-15T16:00:00Z").getTime(),
+  "gG_1": new Date("2026-06-16T01:00:00Z").getTime(),
+  "gG_2": new Date("2026-06-21T19:00:00Z").getTime(),
+  "gG_3": new Date("2026-06-22T01:00:00Z").getTime(),
+  "gG_4": new Date("2026-06-26T03:00:00Z").getTime(),
+  "gG_5": new Date("2026-06-26T03:00:00Z").getTime(),
+  // Groupe H
+  "gH_0": new Date("2026-06-15T16:00:00Z").getTime(),
+  "gH_1": new Date("2026-06-15T22:00:00Z").getTime(),
+  "gH_2": new Date("2026-06-21T16:00:00Z").getTime(),
+  "gH_3": new Date("2026-06-21T22:00:00Z").getTime(),
+  "gH_4": new Date("2026-06-26T00:00:00Z").getTime(),
+  "gH_5": new Date("2026-06-26T00:00:00Z").getTime(),
+  // Groupe I
+  "gI_0": new Date("2026-06-16T19:00:00Z").getTime(),
+  "gI_1": new Date("2026-06-16T22:00:00Z").getTime(),
+  "gI_2": new Date("2026-06-22T21:00:00Z").getTime(),
+  "gI_3": new Date("2026-06-23T00:00:00Z").getTime(),
+  "gI_4": new Date("2026-06-26T19:00:00Z").getTime(),
+  "gI_5": new Date("2026-06-26T19:00:00Z").getTime(),
+  // Groupe J
+  "gJ_0": new Date("2026-06-17T01:00:00Z").getTime(),
+  "gJ_1": new Date("2026-06-17T04:00:00Z").getTime(),
+  "gJ_2": new Date("2026-06-22T17:00:00Z").getTime(),
+  "gJ_3": new Date("2026-06-22T03:00:00Z").getTime(),
+  "gJ_4": new Date("2026-06-26T23:30:00Z").getTime(),
+  "gJ_5": new Date("2026-06-27T02:00:00Z").getTime(),
+  // Groupe K
+  "gK_0": new Date("2026-06-17T17:00:00Z").getTime(),
+  "gK_1": new Date("2026-06-17T02:00:00Z").getTime(),
+  "gK_2": new Date("2026-06-23T17:00:00Z").getTime(),
+  "gK_3": new Date("2026-06-23T02:00:00Z").getTime(),
+  "gK_4": new Date("2026-06-26T23:30:00Z").getTime(),
+  "gK_5": new Date("2026-06-26T23:30:00Z").getTime(),
+  // Groupe L
+  "gL_0": new Date("2026-06-17T20:00:00Z").getTime(),
+  "gL_1": new Date("2026-06-17T23:00:00Z").getTime(),
+  "gL_2": new Date("2026-06-23T20:00:00Z").getTime(),
+  "gL_3": new Date("2026-06-23T23:00:00Z").getTime(),
+  "gL_4": new Date("2026-06-27T21:00:00Z").getTime(),
+  "gL_5": new Date("2026-06-27T21:00:00Z").getTime(),
+};
+
+function isMatchLocked(mid) {
+  // KO matches: always unlocked until admin sets score
+  if (mid.startsWith('k')) return false;
+  const ko = KICKOFFS[mid];
+  if (!ko) return false;
+  return Date.now() >= ko;
+}
 
 function gk(g,i){return `g${g}_${i}`;}
 function kk(si,di,mi){return `k${si}_${di}_${mi}`;}
@@ -508,20 +620,96 @@ function renderPro(){
   if(!ME){
     el.innerHTML=`
     <div id="prono-login">
-      <h3>🎯 Bienvenue dans les pronostics !</h3>
-      <p>Entre ton pseudo pour saisir tes pronostics et apparaître dans le classement.</p>
-      <div class="login-row">
-        <input id="pseudo-input" type="text" placeholder="Ton pseudo (ex: Bruno)" maxlength="20">
-        <button class="btn btn-g" onclick="setPseudo()">Jouer !</button>
+
+      <div style="text-align:center;margin-bottom:28px;">
+        <div style="font-size:48px;margin-bottom:10px">🏆</div>
+        <h2 style="font-family:'Oswald',sans-serif;font-size:26px;font-weight:700;color:#f5a623;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">Bienvenue dans le Mini-Championnat !</h2>
+        <p style="font-size:13px;color:#8a9ab5;max-width:500px;margin:0 auto;line-height:1.7">
+          Un jeu de pronostics <b style="color:#c8d6e8">100% fun et gratuit</b> entre amis pour vivre la Coupe du Monde 2026 encore plus intensément. Pas d'argent, juste de la fierté — qui sera le meilleur pronostiqueur du groupe ?
+        </p>
       </div>
-    </div>
-    <div class="rules-box">
-      <h4>⚡ Règles du jeu</h4>
-      <div class="rules-grid">
-        <div class="rule-item"><div class="rule-pts">5</div><div class="rule-label">Score exact<br>(ex: 2-1 ✓)</div></div>
-        <div class="rule-item"><div class="rule-pts">2</div><div class="rule-label">Bon résultat<br>(V/N/D ✓)</div></div>
-        <div class="rule-item"><div class="rule-pts">0</div><div class="rule-label">Mauvais<br>pronostic</div></div>
+
+      <div style="background:#0a1628;border-radius:6px;padding:20px 24px;margin-bottom:24px;border:1px solid #1e3048;">
+        <h3 style="font-family:'Oswald',sans-serif;font-size:15px;letter-spacing:1px;text-transform:uppercase;color:#f5a623;margin-bottom:16px">📖 Comment ça marche ?</h3>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;">
+          <div style="display:flex;gap:10px;align-items:flex-start;">
+            <span style="font-size:20px;flex-shrink:0">1️⃣</span>
+            <div><b style="color:#c8d6e8;font-size:12px">Choisis ton pseudo</b><br><span style="font-size:11px;color:#8a9ab5">Inscris-toi avec un surnom et rejoins le groupe.</span></div>
+          </div>
+          <div style="display:flex;gap:10px;align-items:flex-start;">
+            <span style="font-size:20px;flex-shrink:0">2️⃣</span>
+            <div><b style="color:#c8d6e8;font-size:12px">Pronostique les matchs</b><br><span style="font-size:11px;color:#8a9ab5">Saisis ton score prédit avant le coup d'envoi de chaque match.</span></div>
+          </div>
+          <div style="display:flex;gap:10px;align-items:flex-start;">
+            <span style="font-size:20px;flex-shrink:0">3️⃣</span>
+            <div><b style="color:#c8d6e8;font-size:12px">Gagne des points</b><br><span style="font-size:11px;color:#8a9ab5">Plus ton pronostic est précis, plus tu marques de points.</span></div>
+          </div>
+          <div style="display:flex;gap:10px;align-items:flex-start;">
+            <span style="font-size:20px;flex-shrink:0">4️⃣</span>
+            <div><b style="color:#c8d6e8;font-size:12px">Suis le classement</b><br><span style="font-size:11px;color:#8a9ab5">Le palmarès se met à jour en temps réel. Qui sera champion ?</span></div>
+          </div>
+        </div>
       </div>
+
+      <div style="background:#0a1628;border-radius:6px;padding:20px 24px;margin-bottom:24px;border:1px solid #1e3048;">
+        <h3 style="font-family:'Oswald',sans-serif;font-size:15px;letter-spacing:1px;text-transform:uppercase;color:#f5a623;margin-bottom:16px">⚡ Système de points</h3>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;">
+          <div style="text-align:center;padding:14px 8px;background:#162030;border-radius:4px;border:1px solid #1e3048;">
+            <div style="font-family:'Oswald',sans-serif;font-weight:700;font-size:32px;color:#f5a623">5</div>
+            <div style="font-size:12px;color:#c8d6e8;font-weight:600;margin:4px 0">🎯 Score exact</div>
+            <div style="font-size:10px;color:#8a9ab5">Tu trouves le score précis<br>Ex : 2-1 → tu pronostiques 2-1</div>
+          </div>
+          <div style="text-align:center;padding:14px 8px;background:#162030;border-radius:4px;border:1px solid #1e3048;">
+            <div style="font-family:'Oswald',sans-serif;font-weight:700;font-size:32px;color:#f59e0b">2</div>
+            <div style="font-size:12px;color:#c8d6e8;font-weight:600;margin:4px 0">✓ Bon résultat</div>
+            <div style="font-size:10px;color:#8a9ab5">Tu trouves victoire / nul / défaite<br>Ex : 2-1 → tu pronostiques 3-0</div>
+          </div>
+          <div style="text-align:center;padding:14px 8px;background:#162030;border-radius:4px;border:1px solid #1e3048;">
+            <div style="font-family:'Oswald',sans-serif;font-weight:700;font-size:32px;color:#6b82a0">0</div>
+            <div style="font-size:12px;color:#c8d6e8;font-weight:600;margin:4px 0">✗ Faux pronostic</div>
+            <div style="font-size:10px;color:#8a9ab5">Mauvais résultat prédit<br>Ex : 2-1 → tu pronostiques 1-2</div>
+          </div>
+        </div>
+        <div style="background:#162030;border-radius:4px;padding:12px 14px;border-left:3px solid #f5a623;">
+          <p style="font-size:12px;color:#8a9ab5;line-height:1.6">
+            <b style="color:#c8d6e8">Exemple :</b> France 2-1 Sénégal — si tu pronostiques <b style="color:#f5a623">2-1 ✓</b> → 5 pts · si tu pronostiques <b style="color:#f59e0b">3-0 ✓</b> → 2 pts · si tu pronostiques <b style="color:#f87171">1-2 ✗</b> → 0 pt
+          </p>
+        </div>
+      </div>
+
+      <div style="background:#0a1628;border-radius:6px;padding:20px 24px;margin-bottom:28px;border:1px solid #1e3048;">
+        <h3 style="font-family:'Oswald',sans-serif;font-size:15px;letter-spacing:1px;text-transform:uppercase;color:#f5a623;margin-bottom:16px">🔒 Règle anti-triche</h3>
+        <div style="display:flex;gap:12px;align-items:flex-start;margin-bottom:12px;">
+          <span style="font-size:22px;flex-shrink:0">⏱️</span>
+          <div>
+            <b style="color:#c8d6e8;font-size:12px">Verrouillage automatique au coup d'envoi</b>
+            <p style="font-size:11px;color:#8a9ab5;margin-top:3px;line-height:1.6">Dès que l'heure officielle du match arrive, tes cases de pronostic se grisent et deviennent impossibles à modifier. Tu ne peux plus changer ton pronostic une fois le match commencé.</p>
+          </div>
+        </div>
+        <div style="display:flex;gap:12px;align-items:flex-start;margin-bottom:12px;">
+          <span style="font-size:22px;flex-shrink:0">👁️</span>
+          <div>
+            <b style="color:#c8d6e8;font-size:12px">Pronostics visibles de tous</b>
+            <p style="font-size:11px;color:#8a9ab5;margin-top:3px;line-height:1.6">Tout le monde peut voir les pronostics de chaque joueur dans le palmarès. La transparence totale garantit une compétition honnête.</p>
+          </div>
+        </div>
+        <div style="display:flex;gap:12px;align-items:flex-start;">
+          <span style="font-size:22px;flex-shrink:0">📱</span>
+          <div>
+            <b style="color:#c8d6e8;font-size:12px">Ton pseudo est sauvegardé sur ton appareil</b>
+            <p style="font-size:11px;color:#8a9ab5;margin-top:3px;line-height:1.6">Ton pseudo est mémorisé dans ton navigateur. Sur un nouvel appareil, utilise exactement le même pseudo pour retrouver tes pronostics.</p>
+          </div>
+        </div>
+      </div>
+
+      <div style="text-align:center;">
+        <p style="font-size:13px;color:#8a9ab5;margin-bottom:14px">Prêt à jouer ? Entre ton pseudo et c'est parti !</p>
+        <div class="login-row">
+          <input id="pseudo-input" type="text" placeholder="Ton pseudo (ex: Bruno)" maxlength="20">
+          <button class="btn btn-g" onclick="setPseudo()">⚽ Je joue !</button>
+        </div>
+      </div>
+
     </div>`;
     return;
   }
@@ -560,10 +748,13 @@ function renderPro(){
       const prono=P[ME]?.[mid]||{s1:'',s2:''};
       const real=S[mid];
       const sc=scoreProno(prono,real);
-      const locked=real&&real.s1!=='';
+      const locked=isMatchLocked(mid);
       const lc=locked?'locked':'';
       let resultHtml='—';
       let ptsHtml='—';
+      if(locked && !real){
+        resultHtml=`<span style="font-size:11px;color:var(--muted)">🔒 En cours</span>`;
+      }
       if(real&&real.s1!==''){
         resultHtml=`<span class="match-result">${real.s1}–${real.s2}</span>`;
       }
