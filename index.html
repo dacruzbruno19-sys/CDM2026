@@ -408,8 +408,8 @@ GDAYS.forEach(d=>d.m.forEach(m=>{(GMR[m.g]||(GMR[m.g]=[])).push(m);}));
 
 // Build flat match list for pronostics
 const ALL_MATCHES=[];
-GDAYS.forEach(d=>d.m.forEach(m=>{ALL_MATCHES.push({...m,dayLabel:d.day});}));
-KO.forEach((sec,si)=>sec.days.forEach((d,di)=>d.m.forEach((m,mi)=>{ALL_MATCHES.push({...m,dayLabel:d.day,koKey:`k${si}_${di}_${mi}`});})));
+GDAYS.forEach(d=>d.m.forEach(m=>{const idx=GMR[m.g].indexOf(m);ALL_MATCHES.push({...m,dayLabel:d.day,_mid:gk(m.g,idx)});}));
+KO.forEach((sec,si)=>sec.days.forEach((d,di)=>d.m.forEach((m,mi)=>{ALL_MATCHES.push({...m,dayLabel:d.day,koKey:`k${si}_${di}_${mi}`,_mid:`k${si}_${di}_${mi}`});})));
 
 
 const KICKOFFS = {
@@ -510,6 +510,7 @@ function isMatchLocked(mid) {
 function gk(g,i){return `g${g}_${i}`;}
 function kk(si,di,mi){return `k${si}_${di}_${mi}`;}
 function matchId(m){
+  if(m._mid) return m._mid;
   if(m.koKey) return m.koKey;
   const idx=GMR[m.g].indexOf(m);
   return gk(m.g,idx);
