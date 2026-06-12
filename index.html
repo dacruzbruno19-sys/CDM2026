@@ -192,7 +192,8 @@ input.qi.has{border-color:var(--danger);background:#2a1414;color:#fca5a5;}
 #admin-bar{display:none;align-items:center;gap:10px;padding:7px 20px;background:#0a1e0f;border-bottom:1px solid #1a4020;font-size:11px;color:#4ade80;font-family:'Oswald',sans-serif;letter-spacing:.5px;}
 #admin-bar.on{display:flex;}
 .admin-badge{background:#16a34a;color:#fff;font-family:'Oswald',sans-serif;font-weight:700;font-size:10px;padding:2px 8px;border-radius:10px;letter-spacing:.5px;}
-input.si[disabled],input.ti[disabled],input.qi[disabled]{background:#0d1520!important;color:#2a3a4a!important;border-color:#1a2535!important;cursor:not-allowed;}
+input.si[disabled]:not(.has),input.ti[disabled]:not(.has),input.qi[disabled]:not(.has){background:#0d1520!important;color:#2a3a4a!important;border-color:#1a2535!important;cursor:not-allowed;}
+input.si[disabled].has,input.ti[disabled].has,input.qi[disabled].has{cursor:not-allowed;}
 .ro-msg{display:inline-block;font-size:10px;color:#6b82a0;font-style:italic;margin-left:6px;}
 
 footer{text-align:center;padding:14px;font-size:11px;color:#6b82a0;border-top:1px solid #1e3048;background:#162030;margin-top:40px;}
