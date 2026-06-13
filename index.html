@@ -164,6 +164,10 @@ input.qi.has{border-color:var(--danger);background:#2a1414;color:#fca5a5;}
 
 
 
+.ko-team-cell{text-align:left;padding-left:10px;font-size:12px;}
+.ko-team{color:#5a6b85;font-style:italic;}
+.ko-team.real{color:#c8d6e8;font-style:normal;font-weight:600;}
+
 /* PARCOURS */
 .parcours-section{background:#162030;border:1px solid #1e3048;border-radius:6px;margin-bottom:20px;overflow:hidden;}
 .parcours-head{background:#0a1628;padding:12px 18px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;}
@@ -410,8 +414,6 @@ let IS_ADMIN = false;
 function initAdmin(){
   IS_ADMIN = sessionStorage.getItem('cdm2026_admin') === '1';
   document.getElementById('admin-bar').classList.toggle('on', IS_ADMIN);
-  initAdmin();
-renderCal();
 }
 function openAdminModal(){
   document.getElementById('admin-modal').style.display='flex';
@@ -580,9 +582,11 @@ onValue(scoresRef,(snap)=>{
   S=snap.val()||{};
   setSyncStatus('ok','✓ Synchronisé en temps réel');
   updateAllInputs();
+  updateKOTeams();
   if(document.getElementById('v-std').classList.contains('on'))renderStd();
   if(document.getElementById('v-ldb').classList.contains('on'))renderLdb();
   if(document.getElementById('v-pro').classList.contains('on'))renderPro();
+  if(document.getElementById('v-pal').classList.contains('on'))renderPal();
 },(e)=>{setSyncStatus('err','✗ Erreur : '+e.message);});
 
 // Listen pronostics
@@ -650,6 +654,169 @@ function calcPlayerScore(pseudo){
 
 
 // ═══════════════════════════════════════
+// BRACKET AUTO-RESOLUTION
+// ═══════════════════════════════════════
+// Date limite pour les pronostics de parcours : coup d'envoi du 1er match des 1/8 de finale
+const PARCOURS_LOCK_TIME = new Date('2026-07-04T17:00:00Z').getTime(); // Sam 4 juillet 19h00 Paris (CEST)
+
+function flattenKO(sectionIdx){
+  const sec = KO[sectionIdx];
+  const list=[];
+  sec.days.forEach((day,di)=>day.m.forEach((m,mi)=>{
+    list.push({m, koKey:`k${sectionIdx}_${di}_${mi}`});
+  }));
+  return list;
+}
+
+function groupComplete(g){
+  const matches = GMR[g]||[];
+  if(matches.length===0) return false;
+  return matches.every((m,idx)=>{
+    const sc=S[gk(g,idx)];
+    return sc && sc.s1!==undefined && sc.s1!==null && sc.s1!=='' && sc.s2!==undefined && sc.s2!==null && sc.s2!=='';
+  });
+}
+
+function resolveGroupPlaceholder(label){
+  const clean = label.replace(/\s*\(bis\)\s*$/,'').trim();
+  let mm;
+  if((mm = clean.match(/^1er Gr\.([A-L])$/))){
+    const g=mm[1]; if(!groupComplete(g)) return null;
+    const row=computeGrp(g)[0]; return row?row.name:null;
+  }
+  if((mm = clean.match(/^2e Gr\.([A-L])$/))){
+    const g=mm[1]; if(!groupComplete(g)) return null;
+    const row=computeGrp(g)[1]; return row?row.name:null;
+  }
+  if((mm = clean.match(/^3e ([A-L\/]+)$/))){
+    const groups = mm[1].split('/');
+    const candidates=[];
+    groups.forEach(g=>{
+      if(groupComplete(g)){
+        const third=computeGrp(g)[2];
+        if(third) candidates.push(third);
+      }
+    });
+    if(candidates.length===0) return null;
+    candidates.sort((a,b)=>b.pts-a.pts||b.diff-a.diff||b.gf-a.gf);
+    return candidates[0].name;
+  }
+  return null;
+}
+
+function getWinner(koKey, t1, t2){
+  if(!t1||!t2) return null;
+  const rec=S[koKey]; if(!rec) return null;
+  const s1=rec.s1, s2=rec.s2;
+  if(s1===undefined||s2===undefined||s1===null||s2===null||s1===''||s2==='') return null;
+  const n1=parseInt(s1), n2=parseInt(s2);
+  if(isNaN(n1)||isNaN(n2)) return null;
+  if(n1>n2) return t1;
+  if(n2>n1) return t2;
+  if(rec.q && rec.q.trim()) return rec.q.trim();
+  return null;
+}
+function getLoser(t1,t2,winner){
+  if(!winner) return null;
+  if(winner===t1) return t2;
+  if(winner===t2) return t1;
+  return null;
+}
+function isRealName(t){
+  if(!t) return false;
+  return !/^(Vainqueur|Perdant|1er|2e|3e)\b/.test(t) && !/Gr\./.test(t) && !/^À déterminer$/.test(t);
+}
+function parseRef(label, winnerMap){
+  let mm;
+  if((mm=label.match(/^Vainqueur 1\/16 #(\d+)$/))) return winnerMap[`R32#${mm[1]}`]||null;
+  if((mm=label.match(/^Vainqueur 1\/8 #(\d+)$/))) return winnerMap[`R16#${mm[1]}`]||null;
+  if((mm=label.match(/^Vainqueur QF(\d+)$/))) return winnerMap[`QF#${mm[1]}`]||null;
+  if((mm=label.match(/^Vainqueur SF(\d+)$/))) return winnerMap[`SF#${mm[1]}`]||null;
+  return null;
+}
+function parseLoserRef(label,loserMap){
+  let mm;
+  if((mm=label.match(/^Perdant SF(\d+)$/))) return loserMap[`SF#${mm[1]}`]||null;
+  return null;
+}
+
+// Builds the full bracket: resolves placeholder team names round by round
+// based on group standings + KO scores entered by the admin.
+function buildBracket(){
+  const display={};
+  const winnerMap={};
+  const loserMap={};
+
+  const r32 = flattenKO(0);
+  r32.forEach((item,i)=>{
+    const t1r = resolveGroupPlaceholder(item.m.t1);
+    const t2r = resolveGroupPlaceholder(item.m.t2);
+    display[item.koKey]={t1: t1r||item.m.t1, t2: t2r||item.m.t2};
+    const w = getWinner(item.koKey, t1r, t2r);
+    winnerMap[`R32#${i+1}`]=w;
+    loserMap[`R32#${i+1}`]=getLoser(t1r,t2r,w);
+  });
+
+  const r16 = flattenKO(1);
+  r16.forEach((item,j)=>{
+    const r1 = parseRef(item.m.t1, winnerMap);
+    const r2 = parseRef(item.m.t2, winnerMap);
+    display[item.koKey]={t1: r1||item.m.t1, t2: r2||item.m.t2};
+    const w=getWinner(item.koKey,r1,r2);
+    winnerMap[`R16#${j+1}`]=w;
+    loserMap[`R16#${j+1}`]=getLoser(r1,r2,w);
+  });
+
+  const qf=flattenKO(2);
+  qf.forEach((item,k)=>{
+    const r1=parseRef(item.m.t1,winnerMap);
+    const r2=parseRef(item.m.t2,winnerMap);
+    display[item.koKey]={t1:r1||item.m.t1,t2:r2||item.m.t2};
+    const w=getWinner(item.koKey,r1,r2);
+    winnerMap[`QF#${k+1}`]=w;
+    loserMap[`QF#${k+1}`]=getLoser(r1,r2,w);
+  });
+
+  const sf=flattenKO(3);
+  sf.forEach((item,mIdx)=>{
+    const r1=parseRef(item.m.t1,winnerMap);
+    const r2=parseRef(item.m.t2,winnerMap);
+    display[item.koKey]={t1:r1||item.m.t1,t2:r2||item.m.t2};
+    const w=getWinner(item.koKey,r1,r2);
+    winnerMap[`SF#${mIdx+1}`]=w;
+    loserMap[`SF#${mIdx+1}`]=getLoser(r1,r2,w);
+  });
+
+  const finalSec=flattenKO(4); // [0]=3e place, [1]=finale
+  let third=null, champion=null;
+  finalSec.forEach((item,idx)=>{
+    let r1,r2;
+    if(idx===0){
+      r1=parseLoserRef(item.m.t1,loserMap);
+      r2=parseLoserRef(item.m.t2,loserMap);
+    } else {
+      r1=parseRef(item.m.t1,winnerMap);
+      r2=parseRef(item.m.t2,winnerMap);
+    }
+    display[item.koKey]={t1:r1||item.m.t1,t2:r2||item.m.t2};
+    const w=getWinner(item.koKey,r1,r2);
+    if(idx===0) third=w; else champion=w;
+  });
+
+  // Aggregate lists for parcours scoring
+  const quarterfinalists=[];
+  qf.forEach(item=>{const d=display[item.koKey];[d.t1,d.t2].forEach(t=>{if(isRealName(t))quarterfinalists.push(t);});});
+  const semifinalists=[];
+  sf.forEach(item=>{const d=display[item.koKey];[d.t1,d.t2].forEach(t=>{if(isRealName(t))semifinalists.push(t);});});
+  const finalMatch=finalSec[1];
+  const finalists=[]; const dF=display[finalMatch.koKey]; [dF.t1,dF.t2].forEach(t=>{if(isRealName(t))finalists.push(t);});
+
+  return {display, quarterfinalists, semifinalists, finalists, third, champion};
+}
+
+let BRACKET = {display:{}, quarterfinalists:[], semifinalists:[], finalists:[], third:null, champion:null};
+
+// ═══════════════════════════════════════
 // PARCOURS DATA
 // ═══════════════════════════════════════
 const PARCOURS_SECTIONS = [
@@ -658,8 +825,7 @@ const PARCOURS_SECTIONS = [
     title: '🏆 Vainqueur de la Coupe du Monde',
     pts: 100,
     count: 1,
-    desc: 'Quelle équipe soulèvera le trophée le 19 juillet à MetLife Stadium ?',
-    adminKey: 'winner',
+    desc: "Quelle équipe soulèvera le trophée le 19 juillet à MetLife Stadium ?",
   },
   {
     id: 'finalist',
@@ -667,53 +833,53 @@ const PARCOURS_SECTIONS = [
     pts: 50,
     count: 2,
     desc: "2 équipes en finale. 50 pts par équipe correctement pronostiquée (peu importe l'ordre).",
-    adminKey: 'finalists',
   },
   {
     id: 'third',
     title: '🥉 3e place',
     pts: 50,
     count: 1,
-    desc: 'Quelle équipe remportera la petite finale et terminera 3e ?',
-    adminKey: 'third',
+    desc: "Quelle équipe remportera la petite finale et terminera 3e ?",
   },
   {
     id: 'semi',
     title: '🔝 Demi-finalistes',
     pts: 25,
     count: 4,
-    desc: '4 équipes en demi-finale. 25 pts par équipe correctement pronostiquée.',
-    adminKey: 'semis',
+    desc: "4 équipes en demi-finale. 25 pts par équipe correctement pronostiquée.",
   },
   {
     id: 'quarter',
     title: '⚡ Quart-de-finalistes',
     pts: 25,
     count: 8,
-    desc: '8 équipes en quart de finale. 25 pts par équipe correctement pronostiquée.',
-    adminKey: 'quarters',
+    desc: "8 équipes en quart de finale. 25 pts par équipe correctement pronostiquée.",
   },
 ];
+
+function resultsForSection(sec){
+  if(sec.id==='quarter') return BRACKET.quarterfinalists;
+  if(sec.id==='semi') return BRACKET.semifinalists;
+  if(sec.id==='finalist') return BRACKET.finalists;
+  if(sec.id==='third') return BRACKET.third ? [BRACKET.third] : [];
+  if(sec.id==='winner') return BRACKET.champion ? [BRACKET.champion] : [];
+  return [];
+}
 
 // Compute parcours score for a player
 function calcParcoursScore(pseudo) {
   let total = 0;
   const details = {};
   const AP = (P[pseudo] && P[pseudo]['__parcours']) ? P[pseudo]['__parcours'] : {};
-  const AR = S['__admin_parcours'] || {};
 
   PARCOURS_SECTIONS.forEach(sec => {
     const playerPronos = AP[sec.id] || {};
-    const adminResults = AR[sec.adminKey] || {};
+    const resolved = resultsForSection(sec).map(t=>t.toLowerCase().trim());
     let pts = 0;
-    const adminTeams = Object.values(adminResults).map(t => t ? t.toLowerCase().trim() : '').filter(Boolean);
-
     for (let i = 0; i < sec.count; i++) {
       const prono = (playerPronos[i] || '').toLowerCase().trim();
       if (!prono) continue;
-      if (adminTeams.includes(prono)) {
-        pts += sec.pts;
-      }
+      if (resolved.includes(prono)) pts += sec.pts;
     }
     details[sec.id] = pts;
     total += pts;
@@ -726,8 +892,24 @@ function calcParcoursScore(pseudo) {
 // ═══════════════════════════════════════
 function renderPal() {
   const el = document.getElementById('v-pal');
+
+  const lockTimePassed = Date.now() >= PARCOURS_LOCK_TIME;
+  const lockDateStr = new Date(PARCOURS_LOCK_TIME).toLocaleString('fr-FR', {
+    weekday:'long', day:'numeric', month:'long', hour:'2-digit', minute:'2-digit'
+  });
+
+  const deadlineBanner = `
+  <div style="background:${lockTimePassed?'#2a1414':'#0a1e0f'};border:1px solid ${lockTimePassed?'#5a2020':'#1a4020'};border-radius:6px;padding:14px 18px;margin-bottom:20px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+    <span style="font-size:24px">${lockTimePassed?'🔒':'⏰'}</span>
+    <div style="font-size:12px;color:${lockTimePassed?'#fca5a5':'#86efac'};line-height:1.6">
+      ${lockTimePassed
+        ? `<b>Pronostics de parcours verrouillés.</b> La date limite (coup d'envoi des 1/8 de finale, ${lockDateStr} heure de Paris) est passée.`
+        : `<b>Règle :</b> les pronostics de parcours (quarts, demis, finalistes, 3e place et vainqueur) doivent être renseignés <b>avant le coup d'envoi du premier match des 1/8 de finale</b>, le <b>${lockDateStr}</b> (heure de Paris). Passé ce délai, ils seront verrouillés définitivement.`}
+    </div>
+  </div>`;
+
   if (!ME) {
-    el.innerHTML = `<div style="text-align:center;padding:60px 20px;color:var(--muted);">
+    el.innerHTML = deadlineBanner + `<div style="text-align:center;padding:60px 20px;color:var(--muted);">
       <div style="font-size:48px;margin-bottom:12px">🌟</div>
       <div style="font-family:'Oswald',sans-serif;font-size:18px;margin-bottom:8px;color:#c8d6e8">Pronostics de parcours</div>
       <div style="font-size:12px;margin-bottom:20px">Va dans l'onglet Pronostics pour choisir ton pseudo d'abord !</div>
@@ -737,7 +919,6 @@ function renderPal() {
   }
 
   const AP = (P[ME] && P[ME]['__parcours']) ? P[ME]['__parcours'] : {};
-  const AR = S['__admin_parcours'] || {};
   const sc = calcParcoursScore(ME);
 
   let h = `
@@ -751,44 +932,22 @@ function renderPal() {
       <div style="font-family:'Oswald',sans-serif;font-weight:700;font-size:28px;color:#f5a623">${sc.total}</div>
       <div style="font-size:10px;color:#8a9ab5">pts parcours</div>
     </div>
-  </div>`;
-
-  // Admin results panel
-  if (IS_ADMIN) {
-    h += `<div style="background:#0a1e0f;border:1px solid #1a4020;border-radius:6px;padding:16px 20px;margin-bottom:20px;">
-      <div style="font-family:'Oswald',sans-serif;font-size:13px;color:#4ade80;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:14px;display:flex;align-items:center;gap:8px;"><span class="admin-badge">ADMIN</span> Saisir les équipes qualifiées (résultats officiels)</div>`;
-
-    PARCOURS_SECTIONS.forEach(sec => {
-      const adminVals = AR[sec.adminKey] || {};
-      h += `<div style="margin-bottom:14px;">
-        <div style="font-size:11px;color:#c8d6e8;font-weight:600;margin-bottom:6px;">${sec.title} <span style="color:#8a9ab5;font-weight:400;font-size:10px">(${sec.pts} pts chacune)</span></div>
-        <div class="teams-grid">`;
-      for (let i = 0; i < sec.count; i++) {
-        const val = adminVals[i] || '';
-        h += `<div class="team-prono-slot">
-          <span class="slot-num">${i+1}.</span>
-          <input type="text" value="${val}" placeholder="Équipe…" 
-            oninput="upAdminParcours('${sec.adminKey}',${i},this)">
-        </div>`;
-      }
-      h += `</div></div>`;
-    });
-    h += `</div>`;
-  }
+  </div>` + deadlineBanner;
 
   // Player pronostics
   PARCOURS_SECTIONS.forEach(sec => {
     const playerVals = AP[sec.id] || {};
-    const adminVals = AR[sec.adminKey] || {};
-    const adminTeams = Object.values(adminVals).map(t => t ? t.toLowerCase().trim() : '').filter(Boolean);
-    const resultsIn = adminTeams.length > 0;
+    const resolved = resultsForSection(sec);
+    const resolvedLow = resolved.map(t=>t.toLowerCase().trim());
+    const resultsIn = resolved.length > 0;
     const ptsSec = sc.details[sec.id] || 0;
+    const locked = lockTimePassed;
 
     h += `<div class="parcours-section">
       <div class="parcours-head">
         <span class="parcours-title">${sec.title}</span>
         <div style="display:flex;align-items:center;gap:8px;">
-          ${resultsIn ? `<span style="font-size:11px;color:#4ade80;font-weight:600">+${ptsSec} pts</span>` : ''}
+          ${ptsSec>0 ? `<span style="font-size:11px;color:#4ade80;font-weight:600">+${ptsSec} pts</span>` : ''}
           <span class="parcours-pts">${sec.pts} pts / équipe</span>
         </div>
       </div>
@@ -800,23 +959,20 @@ function renderPal() {
       const val = playerVals[i] || '';
       const valLow = val.toLowerCase().trim();
       let slotCls = '';
-      if (resultsIn && val) {
-        slotCls = adminTeams.includes(valLow) ? 'correct' : 'wrong';
-      }
-      const locked = resultsIn; // lock once admin has set results
+      if (val && resolvedLow.includes(valLow)) slotCls = 'correct';
       h += `<div class="team-prono-slot ${slotCls}${locked ? ' locked' : ''}">
         <span class="slot-num">${sec.count > 1 ? (i+1)+'.' : '🏆'}</span>
         <input type="text" value="${val}" placeholder="${sec.count === 1 ? 'Ex: France' : 'Équipe…'}"
           ${locked ? 'disabled' : ''}
           oninput="upParcoursProno('${sec.id}',${i},this)">
-        ${resultsIn && val ? (adminTeams.includes(valLow) ? '<span style="color:#4ade80;font-size:14px">✓</span>' : '<span style="color:#f87171;font-size:14px">✗</span>') : ''}
+        ${val && resolvedLow.includes(valLow) ? '<span style="color:#4ade80;font-size:14px">✓</span>' : ''}
       </div>`;
     }
 
     h += `</div>`;
-    if (resultsIn && adminTeams.length > 0) {
+    if (resultsIn) {
       h += `<div style="margin-top:10px;padding:8px 10px;background:#0d1520;border-radius:3px;font-size:10px;color:#8a9ab5">
-        Résultat officiel : <b style="color:#c8d6e8">${adminTeams.join(', ')}</b>
+        Équipe(s) actuellement qualifiée(s) : <b style="color:#4ade80">${resolved.join(', ')}</b>
       </div>`;
     }
     h += `</div></div>`;
@@ -825,22 +981,10 @@ function renderPal() {
   el.innerHTML = h;
 }
 
-// Update admin parcours results
-window.upAdminParcours = async function(key, idx, el) {
-  if (!IS_ADMIN) return;
-  if (!S['__admin_parcours']) S['__admin_parcours'] = {};
-  if (!S['__admin_parcours'][key]) S['__admin_parcours'][key] = {};
-  S['__admin_parcours'][key][idx] = el.value;
-  try {
-    await update(ref(db, `scores/__admin_parcours/${key}`), { [idx]: el.value });
-    renderPal();
-    renderLdb();
-  } catch(e) { console.error(e); }
-};
-
 // Update player parcours prono
 window.upParcoursProno = async function(secId, idx, el) {
   if (!ME) return;
+  if (Date.now() >= PARCOURS_LOCK_TIME) return;
   if (!P[ME]) P[ME] = {};
   if (!P[ME]['__parcours']) P[ME]['__parcours'] = {};
   if (!P[ME]['__parcours'][secId]) P[ME]['__parcours'][secId] = {};
@@ -853,6 +997,7 @@ window.upParcoursProno = async function(secId, idx, el) {
 
 
 // ═══════════════════════════════════════
+// CHAT
 // CHAT
 // ═══════════════════════════════════════
 const chatRef = ref(db, 'chat');
@@ -975,12 +1120,14 @@ function renderCal(){
       </tr></thead><tbody>`;
       day.m.forEach((m,mi)=>{
         const key=kk(si,di,mi),sc=S[key]||{t1:'',t2:'',s1:'',s2:'',q:''};
+        const disp=(BRACKET.display&&BRACKET.display[key])||{t1:m.t1,t2:m.t2};
+        const t1real=isRealName(disp.t1), t2real=isRealName(disp.t2);
         h+=`<tr><td>${m.h}</td>
-          <td><input class="ti${sc.t1?' has':''}" type="text" value="${sc.t1||m.t1}" data-kk="${key}" data-f="t1" ${IS_ADMIN?"":"disabled"} oninput="upK(${si},${di},${mi},'t1',this)"></td>
+          <td class="ko-team-cell"><span class="ko-team${t1real?' real':''}" data-kokey="${key}" data-side="t1">${disp.t1}</span></td>
           <td><input class="si${sc.s1!==''?' has':''}" type="number" min="0" max="30" value="${sc.s1}" placeholder="–" ${IS_ADMIN?"":"disabled"} oninput="upK(${si},${di},${mi},'s1',this)"></td>
           <td><span class="ssep">:</span></td>
           <td><input class="si${sc.s2!==''?' has':''}" type="number" min="0" max="30" value="${sc.s2}" placeholder="–" ${IS_ADMIN?"":"disabled"} oninput="upK(${si},${di},${mi},'s2',this)"></td>
-          <td><input class="ti${sc.t2?' has':''}" type="text" value="${sc.t2||m.t2}" data-kk="${key}" data-f="t2" ${IS_ADMIN?"":"disabled"} oninput="upK(${si},${di},${mi},'t2',this)"></td>
+          <td class="ko-team-cell"><span class="ko-team${t2real?' real':''}" data-kokey="${key}" data-side="t2">${disp.t2}</span></td>
           <td class="vc">${m.s}</td>
           <td><input class="qi${sc.q?' has':''}" type="text" value="${sc.q}" placeholder="–" ${IS_ADMIN?"":"disabled"} oninput="upK(${si},${di},${mi},'q',this)"></td>
         </tr>`;
@@ -1004,13 +1151,19 @@ function updateAllInputs(){
       if(document.activeElement!==el){el.value=val;el.classList.toggle('has',val!=='');}
     });
   }));
-  KO.forEach((sec,si)=>sec.days.forEach((day,di)=>day.m.forEach((m,mi)=>{
-    const key=kk(si,di,mi),sc=S[key]||{};
-    document.querySelectorAll(`[data-kk="${key}"]`).forEach(el=>{
-      const val=sc[el.dataset.f]||'';
-      if(document.activeElement!==el){el.value=val||m[el.dataset.f]||'';el.classList.toggle('has',!!sc[el.dataset.f]);}
-    });
-  })));
+}
+
+// Recompute bracket and refresh auto-resolved team name displays in KO tables
+function updateKOTeams(){
+  BRACKET = buildBracket();
+  document.querySelectorAll('.ko-team').forEach(el=>{
+    const key=el.dataset.kokey, side=el.dataset.side;
+    const disp=(BRACKET.display&&BRACKET.display[key]);
+    if(!disp) return;
+    const val=disp[side];
+    el.textContent=val;
+    el.classList.toggle('real', isRealName(val));
+  });
 }
 
 // ═══════════════════════════════════════
@@ -1147,6 +1300,31 @@ function renderPro(){
           <div>
             <b style="color:#c8d6e8;font-size:12px">Ton pseudo est sauvegardé sur ton appareil</b>
             <p style="font-size:11px;color:#8a9ab5;margin-top:3px;line-height:1.6">Ton pseudo est mémorisé dans ton navigateur. Sur un nouvel appareil, utilise exactement le même pseudo pour retrouver tes pronostics.</p>
+          </div>
+        </div>
+      </div>
+
+      <div style="background:#0a1628;border-radius:6px;padding:20px 24px;margin-bottom:28px;border:1px solid #1e3048;">
+        <h3 style="font-family:'Oswald',sans-serif;font-size:15px;letter-spacing:1px;text-transform:uppercase;color:#f5a623;margin-bottom:16px">🌟 Pronostics de parcours (bonus)</h3>
+        <div style="display:flex;gap:12px;align-items:flex-start;margin-bottom:12px;">
+          <span style="font-size:22px;flex-shrink:0">🏆</span>
+          <div>
+            <b style="color:#c8d6e8;font-size:12px">Vainqueur, finalistes, 3e place, demi et quart-finalistes</b>
+            <p style="font-size:11px;color:#8a9ab5;margin-top:3px;line-height:1.6">En plus des scores match par match, pronostique dans l'onglet "Parcours" les équipes qui iront loin dans le tournoi : <b style="color:#c8d6e8">100 pts</b> pour le vainqueur, <b style="color:#c8d6e8">50 pts</b> par finaliste trouvé, <b style="color:#c8d6e8">50 pts</b> pour le 3e, et <b style="color:#c8d6e8">25 pts</b> par demi-finaliste ou quart-de-finaliste trouvé.</p>
+          </div>
+        </div>
+        <div style="display:flex;gap:12px;align-items:flex-start;">
+          <span style="font-size:22px;flex-shrink:0">⏰</span>
+          <div>
+            <b style="color:#c8d6e8;font-size:12px">Tous ces pronostics doivent être faits avant les 1/8 de finale</b>
+            <p style="font-size:11px;color:#8a9ab5;margin-top:3px;line-height:1.6">Le quart, le demi-finaliste, le finaliste, le 3e et le vainqueur doivent être renseignés <b style="color:#c8d6e8">dès le début des 1/8 de finale</b> (avant le coup d'envoi du premier match), c'est-à-dire avant d'avoir vu le tableau final se dessiner. Passé ce moment, tous les pronostics de parcours sont verrouillés définitivement.</p>
+          </div>
+        </div>
+        <div style="display:flex;gap:12px;align-items:flex-start;margin-top:12px;">
+          <span style="font-size:22px;flex-shrink:0">🤖</span>
+          <div>
+            <b style="color:#c8d6e8;font-size:12px">Les noms d'équipes du tableau final se remplissent automatiquement</b>
+            <p style="font-size:11px;color:#8a9ab5;margin-top:3px;line-height:1.6">Pas besoin de les saisir : dès que l'admin rentre les scores, les équipes qualifiées pour les 1/8, quarts, demies et finale apparaissent automatiquement dans le calendrier, et tes points de parcours se mettent à jour en temps réel.</p>
           </div>
         </div>
       </div>
@@ -1347,6 +1525,8 @@ window.show=function(name,btn){
   else if(name==='ldb')renderLdb();
 };
 
+initAdmin();
+updateKOTeams();
 renderCal();
 </script>
 </body>
