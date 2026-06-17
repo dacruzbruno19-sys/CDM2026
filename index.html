@@ -459,90 +459,90 @@ KO.forEach((sec,si)=>sec.days.forEach((d,di)=>d.m.forEach((m,mi)=>{ALL_MATCHES.p
 
 
 const KICKOFFS = {
-  // Groupe A
-  "gA_0": new Date("2026-06-11T19:00:00Z").getTime(),
-  "gA_1": new Date("2026-06-11T22:00:00Z").getTime(),
-  "gA_2": new Date("2026-06-18T01:00:00Z").getTime(),
-  "gA_3": new Date("2026-06-18T16:00:00Z").getTime(),
-  "gA_4": new Date("2026-06-24T01:00:00Z").getTime(),
-  "gA_5": new Date("2026-06-24T01:00:00Z").getTime(),
-  // Groupe B
-  "gB_0": new Date("2026-06-12T19:00:00Z").getTime(),
-  "gB_1": new Date("2026-06-13T19:00:00Z").getTime(),
-  "gB_2": new Date("2026-06-18T19:00:00Z").getTime(),
-  "gB_3": new Date("2026-06-18T22:00:00Z").getTime(),
-  "gB_4": new Date("2026-06-24T19:00:00Z").getTime(),
-  "gB_5": new Date("2026-06-24T19:00:00Z").getTime(),
-  // Groupe C
-  "gC_0": new Date("2026-06-13T22:00:00Z").getTime(),
-  "gC_1": new Date("2026-06-14T01:00:00Z").getTime(),
-  "gC_2": new Date("2026-06-19T22:30:00Z").getTime(),
-  "gC_3": new Date("2026-06-19T22:00:00Z").getTime(),
-  "gC_4": new Date("2026-06-25T22:00:00Z").getTime(),
-  "gC_5": new Date("2026-06-25T22:00:00Z").getTime(),
-  // Groupe D
-  "gD_0": new Date("2026-06-13T01:00:00Z").getTime(),
-  "gD_1": new Date("2026-06-14T04:00:00Z").getTime(),
-  "gD_2": new Date("2026-06-19T19:00:00Z").getTime(),
-  "gD_3": new Date("2026-06-19T03:00:00Z").getTime(),
-  "gD_4": new Date("2026-06-25T02:00:00Z").getTime(),
-  "gD_5": new Date("2026-06-25T02:00:00Z").getTime(),
-  // Groupe E
-  "gE_0": new Date("2026-06-14T17:00:00Z").getTime(),
-  "gE_1": new Date("2026-06-14T23:00:00Z").getTime(),
-  "gE_2": new Date("2026-06-20T20:00:00Z").getTime(),
-  "gE_3": new Date("2026-06-21T00:00:00Z").getTime(),
-  "gE_4": new Date("2026-06-25T20:00:00Z").getTime(),
-  "gE_5": new Date("2026-06-25T20:00:00Z").getTime(),
-  // Groupe F
-  "gF_0": new Date("2026-06-14T20:00:00Z").getTime(),
-  "gF_1": new Date("2026-06-15T02:00:00Z").getTime(),
-  "gF_2": new Date("2026-06-20T17:00:00Z").getTime(),
-  "gF_3": new Date("2026-06-21T04:00:00Z").getTime(),
-  "gF_4": new Date("2026-06-25T23:00:00Z").getTime(),
-  "gF_5": new Date("2026-06-25T23:00:00Z").getTime(),
-  // Groupe G
-  "gG_0": new Date("2026-06-15T16:00:00Z").getTime(),
-  "gG_1": new Date("2026-06-16T01:00:00Z").getTime(),
-  "gG_2": new Date("2026-06-21T19:00:00Z").getTime(),
-  "gG_3": new Date("2026-06-22T01:00:00Z").getTime(),
-  "gG_4": new Date("2026-06-26T03:00:00Z").getTime(),
-  "gG_5": new Date("2026-06-26T03:00:00Z").getTime(),
-  // Groupe H
-  "gH_0": new Date("2026-06-15T16:00:00Z").getTime(),
-  "gH_1": new Date("2026-06-15T22:00:00Z").getTime(),
-  "gH_2": new Date("2026-06-21T16:00:00Z").getTime(),
-  "gH_3": new Date("2026-06-21T22:00:00Z").getTime(),
-  "gH_4": new Date("2026-06-26T00:00:00Z").getTime(),
-  "gH_5": new Date("2026-06-26T00:00:00Z").getTime(),
-  // Groupe I
-  "gI_0": new Date("2026-06-16T19:00:00Z").getTime(),
-  "gI_1": new Date("2026-06-16T22:00:00Z").getTime(),
-  "gI_2": new Date("2026-06-22T21:00:00Z").getTime(),
-  "gI_3": new Date("2026-06-23T00:00:00Z").getTime(),
-  "gI_4": new Date("2026-06-26T19:00:00Z").getTime(),
-  "gI_5": new Date("2026-06-26T19:00:00Z").getTime(),
-  // Groupe J
-  "gJ_0": new Date("2026-06-17T01:00:00Z").getTime(),
-  "gJ_1": new Date("2026-06-17T04:00:00Z").getTime(),
-  "gJ_2": new Date("2026-06-22T17:00:00Z").getTime(),
-  "gJ_3": new Date("2026-06-22T03:00:00Z").getTime(),
-  "gJ_4": new Date("2026-06-26T23:30:00Z").getTime(),
-  "gJ_5": new Date("2026-06-27T02:00:00Z").getTime(),
-  // Groupe K
-  "gK_0": new Date("2026-06-17T17:00:00Z").getTime(),
-  "gK_1": new Date("2026-06-17T02:00:00Z").getTime(),
-  "gK_2": new Date("2026-06-23T17:00:00Z").getTime(),
-  "gK_3": new Date("2026-06-23T02:00:00Z").getTime(),
-  "gK_4": new Date("2026-06-26T23:30:00Z").getTime(),
-  "gK_5": new Date("2026-06-26T23:30:00Z").getTime(),
-  // Groupe L
-  "gL_0": new Date("2026-06-17T20:00:00Z").getTime(),
-  "gL_1": new Date("2026-06-17T23:00:00Z").getTime(),
-  "gL_2": new Date("2026-06-23T20:00:00Z").getTime(),
-  "gL_3": new Date("2026-06-23T23:00:00Z").getTime(),
-  "gL_4": new Date("2026-06-27T21:00:00Z").getTime(),
-  "gL_5": new Date("2026-06-27T21:00:00Z").getTime(),
+  // Groupe A — J1: 11/06 21h + 12/06 04h | J2: 18/06 03h + 18h | J3: 24/06 03h (x2)
+  "gA_0": new Date("2026-06-11T19:00:00Z").getTime(), // 21h Paris
+  "gA_1": new Date("2026-06-12T02:00:00Z").getTime(), // 04h Paris (lendemain)
+  "gA_2": new Date("2026-06-18T01:00:00Z").getTime(), // 03h Paris
+  "gA_3": new Date("2026-06-18T16:00:00Z").getTime(), // 18h Paris
+  "gA_4": new Date("2026-06-24T01:00:00Z").getTime(), // 03h Paris
+  "gA_5": new Date("2026-06-24T01:00:00Z").getTime(), // 03h Paris
+  // Groupe B — J1: 12/06 21h + 13/06 21h | J2: 18/06 21h + 19/06 00h | J3: 24/06 21h (x2)
+  "gB_0": new Date("2026-06-12T19:00:00Z").getTime(), // 21h Paris
+  "gB_1": new Date("2026-06-13T19:00:00Z").getTime(), // 21h Paris
+  "gB_2": new Date("2026-06-18T19:00:00Z").getTime(), // 21h Paris
+  "gB_3": new Date("2026-06-19T22:00:00Z").getTime(), // 00h Paris (lendemain)
+  "gB_4": new Date("2026-06-24T19:00:00Z").getTime(), // 21h Paris
+  "gB_5": new Date("2026-06-24T19:00:00Z").getTime(), // 21h Paris
+  // Groupe C — J1: 14/06 00h + 03h | J2: 19/06 00h + 02h30 | J3: 25/06 00h (x2)
+  "gC_0": new Date("2026-06-13T22:00:00Z").getTime(), // 00h Paris (lendemain)
+  "gC_1": new Date("2026-06-14T01:00:00Z").getTime(), // 03h Paris
+  "gC_2": new Date("2026-06-18T22:00:00Z").getTime(), // 00h Paris (lendemain)
+  "gC_3": new Date("2026-06-19T00:30:00Z").getTime(), // 02h30 Paris
+  "gC_4": new Date("2026-06-24T22:00:00Z").getTime(), // 00h Paris (lendemain)
+  "gC_5": new Date("2026-06-24T22:00:00Z").getTime(), // 00h Paris (lendemain)
+  // Groupe D — J1: 13/06 03h + 14/06 06h | J2: 19/06 21h + 05h | J3: 25/06 04h (x2)
+  "gD_0": new Date("2026-06-13T01:00:00Z").getTime(), // 03h Paris
+  "gD_1": new Date("2026-06-14T04:00:00Z").getTime(), // 06h Paris
+  "gD_2": new Date("2026-06-19T19:00:00Z").getTime(), // 21h Paris
+  "gD_3": new Date("2026-06-20T03:00:00Z").getTime(), // 05h Paris (lendemain)
+  "gD_4": new Date("2026-06-25T02:00:00Z").getTime(), // 04h Paris
+  "gD_5": new Date("2026-06-25T02:00:00Z").getTime(), // 04h Paris
+  // Groupe E — J1: 14/06 19h + 01h | J2: 20/06 22h + 02h | J3: 25/06 22h (x2)
+  "gE_0": new Date("2026-06-14T17:00:00Z").getTime(), // 19h Paris
+  "gE_1": new Date("2026-06-14T23:00:00Z").getTime(), // 01h Paris (lendemain)
+  "gE_2": new Date("2026-06-20T20:00:00Z").getTime(), // 22h Paris
+  "gE_3": new Date("2026-06-21T00:00:00Z").getTime(), // 02h Paris
+  "gE_4": new Date("2026-06-25T20:00:00Z").getTime(), // 22h Paris
+  "gE_5": new Date("2026-06-25T20:00:00Z").getTime(), // 22h Paris
+  // Groupe F — J1: 14/06 22h + 15/06 04h | J2: 20/06 19h + 21/06 06h | J3: 26/06 01h (x2)
+  "gF_0": new Date("2026-06-14T20:00:00Z").getTime(), // 22h Paris
+  "gF_1": new Date("2026-06-15T02:00:00Z").getTime(), // 04h Paris
+  "gF_2": new Date("2026-06-20T17:00:00Z").getTime(), // 19h Paris
+  "gF_3": new Date("2026-06-21T04:00:00Z").getTime(), // 06h Paris
+  "gF_4": new Date("2026-06-25T23:00:00Z").getTime(), // 01h Paris (lendemain)
+  "gF_5": new Date("2026-06-25T23:00:00Z").getTime(), // 01h Paris (lendemain)
+  // Groupe G — J1: 15/06 18h + 16/06 03h | J2: 21/06 21h + 22/06 03h | J3: 26/06 05h (x2)
+  "gG_0": new Date("2026-06-15T16:00:00Z").getTime(), // 18h Paris
+  "gG_1": new Date("2026-06-16T01:00:00Z").getTime(), // 03h Paris
+  "gG_2": new Date("2026-06-21T19:00:00Z").getTime(), // 21h Paris
+  "gG_3": new Date("2026-06-22T01:00:00Z").getTime(), // 03h Paris
+  "gG_4": new Date("2026-06-26T03:00:00Z").getTime(), // 05h Paris
+  "gG_5": new Date("2026-06-26T03:00:00Z").getTime(), // 05h Paris
+  // Groupe H — J1: 15/06 18h + 00h | J2: 21/06 18h + 00h | J3: 26/06 02h + 02h
+  "gH_0": new Date("2026-06-15T16:00:00Z").getTime(), // 18h Paris
+  "gH_1": new Date("2026-06-15T22:00:00Z").getTime(), // 00h Paris (lendemain)
+  "gH_2": new Date("2026-06-21T16:00:00Z").getTime(), // 18h Paris
+  "gH_3": new Date("2026-06-21T22:00:00Z").getTime(), // 00h Paris (lendemain)
+  "gH_4": new Date("2026-06-26T00:00:00Z").getTime(), // 02h Paris
+  "gH_5": new Date("2026-06-26T00:00:00Z").getTime(), // 02h Paris
+  // Groupe I — J1: 16/06 21h + 00h | J2: 22/06 23h + 23/06 02h | J3: 26/06 21h (x2)
+  "gI_0": new Date("2026-06-16T19:00:00Z").getTime(), // 21h Paris
+  "gI_1": new Date("2026-06-16T22:00:00Z").getTime(), // 00h Paris (lendemain)
+  "gI_2": new Date("2026-06-22T21:00:00Z").getTime(), // 23h Paris
+  "gI_3": new Date("2026-06-23T00:00:00Z").getTime(), // 02h Paris
+  "gI_4": new Date("2026-06-26T19:00:00Z").getTime(), // 21h Paris
+  "gI_5": new Date("2026-06-26T19:00:00Z").getTime(), // 21h Paris
+  // Groupe J — J1: 17/06 03h + 06h | J2: 22/06 19h + 23/06 05h | J3: 27/06 01h30 + 04h
+  "gJ_0": new Date("2026-06-17T01:00:00Z").getTime(), // 03h Paris
+  "gJ_1": new Date("2026-06-17T04:00:00Z").getTime(), // 06h Paris
+  "gJ_2": new Date("2026-06-22T17:00:00Z").getTime(), // 19h Paris
+  "gJ_3": new Date("2026-06-23T03:00:00Z").getTime(), // 05h Paris
+  "gJ_4": new Date("2026-06-26T23:30:00Z").getTime(), // 01h30 Paris (lendemain)
+  "gJ_5": new Date("2026-06-27T02:00:00Z").getTime(), // 04h Paris
+  // Groupe K — J1: 17/06 19h + 18/06 04h | J2: 23/06 19h + 24/06 04h | J3: 27/06 01h30 (x2)
+  "gK_0": new Date("2026-06-17T17:00:00Z").getTime(), // 19h Paris
+  "gK_1": new Date("2026-06-18T02:00:00Z").getTime(), // 04h Paris (lendemain 18/06) ← CORRIGÉ
+  "gK_2": new Date("2026-06-23T17:00:00Z").getTime(), // 19h Paris
+  "gK_3": new Date("2026-06-24T02:00:00Z").getTime(), // 04h Paris (lendemain 24/06) ← CORRIGÉ
+  "gK_4": new Date("2026-06-26T23:30:00Z").getTime(), // 01h30 Paris (lendemain)
+  "gK_5": new Date("2026-06-26T23:30:00Z").getTime(), // 01h30 Paris (lendemain)
+  // Groupe L — J1: 17/06 22h + 18/06 01h | J2: 23/06 22h + 24/06 01h | J3: 27/06 23h (x2)
+  "gL_0": new Date("2026-06-17T20:00:00Z").getTime(), // 22h Paris
+  "gL_1": new Date("2026-06-17T23:00:00Z").getTime(), // 01h Paris (lendemain)
+  "gL_2": new Date("2026-06-23T20:00:00Z").getTime(), // 22h Paris
+  "gL_3": new Date("2026-06-23T23:00:00Z").getTime(), // 01h Paris (lendemain)
+  "gL_4": new Date("2026-06-27T21:00:00Z").getTime(), // 23h Paris
+  "gL_5": new Date("2026-06-27T21:00:00Z").getTime(), // 23h Paris
 };
 
 function isMatchLocked(mid) {
