@@ -490,7 +490,7 @@ const KICKOFFS = {
   // ── GROUPE E ──
   "gE_0": new Date("2026-06-14T17:00:00Z").getTime(), // 14/06 19h — Allemagne vs Curaçao
   "gE_1": new Date("2026-06-20T20:00:00Z").getTime(), // 20/06 22h — Allemagne vs Côte d'Ivoire
-  "gE_2": new Date("2026-06-21T00:00:00Z").getTime(), // 21/06 02h — Équateur vs Curaçao
+  "gE_2": new Date("2026-06-20T00:00:00Z").getTime(), // 20/06 02h — Équateur vs Curaçao
   "gE_3": new Date("2026-06-14T23:00:00Z").getTime(), // 15/06 01h — Côte d'Ivoire vs Équateur
   "gE_4": new Date("2026-06-25T20:00:00Z").getTime(), // 25/06 22h — Curaçao vs Côte d'Ivoire
   "gE_5": new Date("2026-06-25T20:00:00Z").getTime(), // 25/06 22h — Équateur vs Allemagne
@@ -1376,15 +1376,19 @@ function renderPro(){
       const real=S[mid];
       const sc=scoreProno(prono,real);
       const locked=isMatchLocked(mid);
-      // Also re-read fresh prono from P in case Firebase updated it
-      const freshProno = P[ME]?.[mid] || {s1:'',s2:''};
-      prono.s1 = freshProno.s1 !== undefined ? freshProno.s1 : prono.s1;
-      prono.s2 = freshProno.s2 !== undefined ? freshProno.s2 : prono.s2;
       const lc=locked?'locked':'';
       let resultHtml='—';
       let ptsHtml='—';
       if(locked && !real){
-        resultHtml=`<span style="font-size:11px;color:var(--muted)">🔒 En cours</span>`;
+        const ko=KICKOFFS[mid];
+        const now=Date.now();
+        // If it's been more than 2 hours since kickoff, show "Résultat attendu"
+        // If less than 2 hours, show "En cours"
+        if(ko && (now - ko) > 2*3600*1000){
+          resultHtml=`<span style="font-size:11px;color:#f59e0b">⌛ Résultat attendu</span>`;
+        } else {
+          resultHtml=`<span style="font-size:11px;color:var(--muted)">🔒 En cours</span>`;
+        }
       }
       if(real&&real.s1!==''){
         resultHtml=`<span class="match-result">${real.s1}–${real.s2}</span>`;
