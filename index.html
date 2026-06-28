@@ -574,11 +574,46 @@ const KICKOFFS = {
   "gL_3": new Date("2026-06-23T23:00:00Z").getTime(), // 24/06 01h — Panama vs Croatie
   "gL_4": new Date("2026-06-27T21:00:00Z").getTime(), // 27/06 23h — Panama vs Angleterre
   "gL_5": new Date("2026-06-27T21:00:00Z").getTime(), // 27/06 23h — Croatie vs Ghana
+  // ── 1/16 DE FINALE ──
+  "k0_0_0": new Date("2026-06-28T19:00:00Z").getTime(), // Dim 28/06 21h — Afrique du Sud vs Canada
+  "k0_1_0": new Date("2026-06-29T17:00:00Z").getTime(), // Lun 29/06 19h — Brésil vs Japon
+  "k0_1_1": new Date("2026-06-29T20:30:00Z").getTime(), // Lun 29/06 22h30 — Allemagne vs Paraguay
+  "k0_2_0": new Date("2026-06-30T01:00:00Z").getTime(), // Mar 30/06 03h — Pays-Bas vs Maroc
+  "k0_2_1": new Date("2026-06-30T17:00:00Z").getTime(), // Mar 30/06 19h — Côte d'Ivoire vs Norvège
+  "k0_2_2": new Date("2026-06-30T21:00:00Z").getTime(), // Mar 30/06 23h — France vs Suède
+  "k0_3_0": new Date("2026-07-01T01:00:00Z").getTime(), // Mer 01/07 03h — Mexique vs Équateur
+  "k0_3_1": new Date("2026-07-01T16:00:00Z").getTime(), // Mer 01/07 18h — Angleterre vs DR Congo
+  "k0_3_2": new Date("2026-07-01T20:00:00Z").getTime(), // Mer 01/07 22h — Belgique vs Sénégal
+  "k0_4_0": new Date("2026-07-02T00:00:00Z").getTime(), // Jeu 02/07 02h — USA vs Bosnie
+  "k0_4_1": new Date("2026-07-02T19:00:00Z").getTime(), // Jeu 02/07 21h — Espagne vs Autriche
+  "k0_5_0": new Date("2026-07-02T23:00:00Z").getTime(), // Ven 03/07 01h — Portugal vs Croatie
+  "k0_5_1": new Date("2026-07-03T03:00:00Z").getTime(), // Ven 03/07 05h — Suisse vs Algérie
+  "k0_6_0": new Date("2026-07-04T18:00:00Z").getTime(), // Sam 04/07 20h — Australie vs Égypte
+  "k0_6_1": new Date("2026-07-03T22:00:00Z").getTime(), // Sam 04/07 00h — Argentine vs Cap-Vert
+  "k0_6_2": new Date("2026-07-04T01:30:00Z").getTime(), // Sam 04/07 03h30 — Colombie vs Ghana
+  // ── 1/8 DE FINALE ──
+  "k1_0_0": new Date("2026-07-07T00:00:00Z").getTime(), // Mar 07/07 02h
+  "k1_0_1": new Date("2026-07-07T20:00:00Z").getTime(), // Mar 07/07 22h
+  "k1_1_0": new Date("2026-07-08T00:00:00Z").getTime(), // Mer 08/07 02h
+  "k1_1_1": new Date("2026-07-08T20:00:00Z").getTime(), // Mer 08/07 22h
+  "k1_2_0": new Date("2026-07-09T00:00:00Z").getTime(), // Jeu 09/07 02h
+  "k1_2_1": new Date("2026-07-09T20:00:00Z").getTime(), // Jeu 09/07 22h
+  "k1_3_0": new Date("2026-07-10T00:00:00Z").getTime(), // Ven 10/07 02h
+  "k1_3_1": new Date("2026-07-10T20:00:00Z").getTime(), // Ven 10/07 22h
+  // ── QUARTS DE FINALE ──
+  "k2_0_0": new Date("2026-07-14T00:00:00Z").getTime(), // Mar 14/07 02h
+  "k2_0_1": new Date("2026-07-14T20:00:00Z").getTime(), // Mar 14/07 22h
+  "k2_1_0": new Date("2026-07-15T00:00:00Z").getTime(), // Mer 15/07 02h
+  "k2_1_1": new Date("2026-07-15T20:00:00Z").getTime(), // Mer 15/07 22h
+  // ── DEMI-FINALES ──
+  "k3_0_0": new Date("2026-07-18T00:00:00Z").getTime(), // Sam 18/07 02h
+  "k3_1_0": new Date("2026-07-19T00:00:00Z").getTime(), // Dim 19/07 02h
+  // ── FINALES ──
+  "k4_0_0": new Date("2026-07-16T00:00:00Z").getTime(), // Mer 16/07 02h 3e place
+  "k4_1_0": new Date("2026-07-19T19:00:00Z").getTime(), // Dim 19/07 21h FINALE
 };
 
 function isMatchLocked(mid) {
-  // KO matches: always unlocked until admin sets score
-  if (mid.startsWith('k')) return false;
   const ko = KICKOFFS[mid];
   if (!ko) return false;
   return Date.now() >= ko;
@@ -1444,6 +1479,62 @@ function renderPro(){
     });
     h+=`</tbody></table>`;
   });
+
+  // ── KO STAGE PRONOSTICS ──
+  KO.forEach((sec, si) => {
+    h += sh(sec.title);
+    sec.days.forEach((day, di) => {
+      h += dl(day.day);
+      h += `<table class="tbl"><thead><tr>
+        <th style="width:50px">Heure</th><th class="lft">Équipe 1</th>
+        <th style="width:34px">P1</th><th style="width:14px"></th><th style="width:34px">P2</th>
+        <th class="lft">Équipe 2</th><th style="width:80px">Résultat</th><th style="width:60px">Pts</th>
+      </tr></thead><tbody>`;
+      day.m.forEach((m, mi) => {
+        const mid = kk(si, di, mi);
+        const disp = (BRACKET.display && BRACKET.display[mid]) || {t1: m.t1, t2: m.t2};
+        const prono = P[ME]?.[mid] || {s1:'', s2:''};
+        const real = S[mid];
+        const sc = scoreProno(prono, real);
+        const locked = isMatchLocked(mid);
+        let resultHtml = '—';
+        let ptsHtml = '—';
+        if (locked && !real) {
+          const ko = KICKOFFS[mid];
+          const now = Date.now();
+          if (ko && (now - ko) > 2*3600*1000) {
+            resultHtml = `<span style="font-size:11px;color:#f59e0b">⌛ Résultat attendu</span>`;
+          } else {
+            resultHtml = `<span style="font-size:11px;color:var(--muted)">🔒 En cours</span>`;
+          }
+        }
+        if (real && real.s1 !== '') {
+          resultHtml = `<span class="match-result">${real.s1}–${real.s2}</span>`;
+        }
+        if (sc !== null) {
+          const cls = sc.type==='exact'?'result-exact':sc.type==='bon'?'result-bon':'result-nul';
+          const icon = sc.type==='exact'?'🎯':sc.type==='bon'?'✓':'✗';
+          ptsHtml = `<span class="match-result ${cls}">${icon} ${sc.pts}pts</span>`;
+        }
+        const t1d = isRealName(disp.t1) ? disp.t1 : `<span style="color:var(--muted);font-style:italic">${disp.t1}</span>`;
+        const t2d = isRealName(disp.t2) ? disp.t2 : `<span style="color:var(--muted);font-style:italic">${disp.t2}</span>`;
+        h += `<tr>
+          <td>${m.h}</td>
+          <td class="nc">${t1d}</td>
+          <td><input class="pi${prono.s1!==''?' has':''}${locked?' locked':''}" type="number" min="0" max="30" value="${prono.s1}" placeholder="–"
+            ${locked?'disabled':''} oninput="upP('${mid}',0,this)"></td>
+          <td><span class="ssep">:</span></td>
+          <td><input class="pi${prono.s2!==''?' has':''}${locked?' locked':''}" type="number" min="0" max="30" value="${prono.s2}" placeholder="–"
+            ${locked?'disabled':''} oninput="upP('${mid}',1,this)"></td>
+          <td class="nc">${t2d}</td>
+          <td>${resultHtml}</td>
+          <td>${ptsHtml}</td>
+        </tr>`;
+      });
+      h += `</tbody></table>`;
+    });
+  });
+
   el.innerHTML=h;
 }
 
