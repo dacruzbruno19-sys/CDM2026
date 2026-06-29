@@ -745,6 +745,8 @@ function groupComplete(g){
 
 function resolveGroupPlaceholder(label){
   const clean = label.replace(/\s*\(bis\)\s*$/,'').trim();
+  // Already a real team name — return as-is
+  if(isRealName(clean)) return clean;
   let mm;
   if((mm = clean.match(/^1er Gr\.([A-L])$/))){
     const g=mm[1]; if(!groupComplete(g)) return null;
@@ -793,6 +795,7 @@ function isRealName(t){
   return !/^(Vainqueur|Perdant|1er|2e|3e)\b/.test(t) && !/Gr\./.test(t) && !/^À déterminer$/.test(t);
 }
 function parseRef(label, winnerMap){
+  if(isRealName(label)) return label;
   let mm;
   if((mm=label.match(/^Vainqueur 1\/16 #(\d+)$/))) return winnerMap[`R32#${mm[1]}`]||null;
   if((mm=label.match(/^Vainqueur 1\/8 #(\d+)$/))) return winnerMap[`R16#${mm[1]}`]||null;
