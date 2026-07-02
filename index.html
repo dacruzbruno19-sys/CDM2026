@@ -391,21 +391,21 @@ const KO=[
     ]},
   ]},
   {title:'1/8 DE FINALE',days:[
+    {day:'Sam. 4 juillet',m:[
+      {h:'19:00',t1:'Canada',t2:'Maroc',s:'NRG Stadium, Houston'},
+      {h:'23:00',t1:'Paraguay',t2:'France',s:'Lincoln Financial Field, Philadelphia'},
+    ]},
+    {day:'Dim. 5 juillet',m:[
+      {h:'22:00',t1:'Brésil',t2:'Norvège',s:'MetLife Stadium, East Rutherford'},
+    ]},
+    {day:'Lun. 6 juillet',m:[
+      {h:'02:00',t1:'Vainqueur 1/16 #5',t2:'Vainqueur 1/16 #6',s:'Estadio Azteca, Mexico City'},
+      {h:'21:00',t1:'Vainqueur 1/16 #7',t2:'Vainqueur 1/16 #8',s:'AT&T Stadium, Dallas'},
+    ]},
     {day:'Mar. 7 juillet',m:[
-      {h:'02:00',t1:'Vainqueur 1/16 #1',t2:'Vainqueur 1/16 #2',s:'MetLife Stadium, East Rutherford'},
-      {h:'22:00',t1:'Vainqueur 1/16 #3',t2:'Vainqueur 1/16 #4',s:'AT&T Stadium, Dallas'},
-    ]},
-    {day:'Mer. 8 juillet',m:[
-      {h:'02:00',t1:'Vainqueur 1/16 #5',t2:'Vainqueur 1/16 #6',s:'SoFi Stadium, Los Angeles'},
-      {h:'22:00',t1:'Vainqueur 1/16 #7',t2:'Vainqueur 1/16 #8',s:'Hard Rock Stadium, Miami'},
-    ]},
-    {day:'Jeu. 9 juillet',m:[
-      {h:'02:00',t1:'Vainqueur 1/16 #9',t2:'Vainqueur 1/16 #10',s:'NRG Stadium, Houston'},
-      {h:'22:00',t1:'Vainqueur 1/16 #11',t2:'Vainqueur 1/16 #12',s:'Mercedes-Benz Stadium, Atlanta'},
-    ]},
-    {day:'Ven. 10 juillet',m:[
-      {h:'02:00',t1:'Vainqueur 1/16 #13',t2:'Vainqueur 1/16 #14',s:'Gillette Stadium, Boston'},
-      {h:'22:00',t1:'Vainqueur 1/16 #15',t2:'Vainqueur 1/16 #16',s:'Arrowhead Stadium, Kansas City'},
+      {h:'02:00',t1:'Vainqueur 1/16 #9',t2:'Vainqueur 1/16 #10',s:'Lumen Field, Seattle'},
+      {h:'18:00',t1:'Vainqueur 1/16 #11',t2:'Vainqueur 1/16 #12',s:'Mercedes-Benz Stadium, Atlanta'},
+      {h:'22:00',t1:'Vainqueur 1/16 #13',t2:'Vainqueur 1/16 #14',s:'BC Place, Vancouver'},
     ]},
   ]},
   {title:'QUARTS DE FINALE',days:[
@@ -592,14 +592,14 @@ const KICKOFFS = {
   "k0_6_1": new Date("2026-07-03T22:00:00Z").getTime(), // Sam 04/07 00h — Argentine vs Cap-Vert
   "k0_6_2": new Date("2026-07-04T01:30:00Z").getTime(), // Sam 04/07 03h30 — Colombie vs Ghana
   // ── 1/8 DE FINALE ──
-  "k1_0_0": new Date("2026-07-07T00:00:00Z").getTime(), // Mar 07/07 02h
-  "k1_0_1": new Date("2026-07-07T20:00:00Z").getTime(), // Mar 07/07 22h
-  "k1_1_0": new Date("2026-07-08T00:00:00Z").getTime(), // Mer 08/07 02h
-  "k1_1_1": new Date("2026-07-08T20:00:00Z").getTime(), // Mer 08/07 22h
-  "k1_2_0": new Date("2026-07-09T00:00:00Z").getTime(), // Jeu 09/07 02h
-  "k1_2_1": new Date("2026-07-09T20:00:00Z").getTime(), // Jeu 09/07 22h
-  "k1_3_0": new Date("2026-07-10T00:00:00Z").getTime(), // Ven 10/07 02h
-  "k1_3_1": new Date("2026-07-10T20:00:00Z").getTime(), // Ven 10/07 22h
+  "k1_0_0": new Date("2026-07-04T17:00:00Z").getTime(), // Sam 04/07 19h — Canada vs Maroc
+  "k1_0_1": new Date("2026-07-04T21:00:00Z").getTime(), // Sam 04/07 23h — Paraguay vs France
+  "k1_1_0": new Date("2026-07-05T20:00:00Z").getTime(), // Dim 05/07 22h — Brésil vs Norvège
+  "k1_2_0": new Date("2026-07-06T00:00:00Z").getTime(), // Lun 06/07 02h — 1/16 #5 vs #6
+  "k1_2_1": new Date("2026-07-06T19:00:00Z").getTime(), // Lun 06/07 21h — 1/16 #7 vs #8
+  "k1_3_0": new Date("2026-07-07T00:00:00Z").getTime(), // Mar 07/07 02h — 1/16 #9 vs #10
+  "k1_3_1": new Date("2026-07-07T16:00:00Z").getTime(), // Mar 07/07 18h — 1/16 #11 vs #12
+  "k1_3_2": new Date("2026-07-07T20:00:00Z").getTime(), // Mar 07/07 22h — 1/16 #13 vs #14
   // ── QUARTS DE FINALE ──
   "k2_0_0": new Date("2026-07-14T00:00:00Z").getTime(), // Mar 14/07 02h
   "k2_0_1": new Date("2026-07-14T20:00:00Z").getTime(), // Mar 14/07 22h
@@ -1193,12 +1193,12 @@ function renderCal(){
         const t1real=isRealName(disp.t1), t2real=isRealName(disp.t2);
         h+=`<tr><td>${m.h}</td>
           <td class="ko-team-cell"><span class="ko-team${t1real?' real':''}" data-kokey="${key}" data-side="t1">${disp.t1}</span></td>
-          <td><input class="si${sc.s1!==''?' has':''}" type="number" min="0" max="30" value="${sc.s1}" placeholder="–" ${IS_ADMIN?"":"disabled"} oninput="upK(${si},${di},${mi},'s1',this)"></td>
+          <td><input class="si${sc.s1!==''?' has':''}" type="number" min="0" max="30" value="${sc.s1}" placeholder="–" data-kokey="${key}" data-koside="s1" ${IS_ADMIN?"":"disabled"} oninput="upK(${si},${di},${mi},'s1',this)"></td>
           <td><span class="ssep">:</span></td>
-          <td><input class="si${sc.s2!==''?' has':''}" type="number" min="0" max="30" value="${sc.s2}" placeholder="–" ${IS_ADMIN?"":"disabled"} oninput="upK(${si},${di},${mi},'s2',this)"></td>
+          <td><input class="si${sc.s2!==''?' has':''}" type="number" min="0" max="30" value="${sc.s2}" placeholder="–" data-kokey="${key}" data-koside="s2" ${IS_ADMIN?"":"disabled"} oninput="upK(${si},${di},${mi},'s2',this)"></td>
           <td class="ko-team-cell"><span class="ko-team${t2real?' real':''}" data-kokey="${key}" data-side="t2">${disp.t2}</span></td>
           <td class="vc">${m.s}</td>
-          <td><input class="qi${sc.q?' has':''}" type="text" value="${sc.q}" placeholder="–" ${IS_ADMIN?"":"disabled"} oninput="upK(${si},${di},${mi},'q',this)"></td>
+          <td><input class="qi${sc.q?' has':''}" type="text" value="${sc.q}" placeholder="–" data-kokey="${key}" ${IS_ADMIN?"":"disabled"} oninput="upK(${si},${di},${mi},'q',this)"></td>
         </tr>`;
       });
       h+=`</tbody></table>`;
@@ -1213,6 +1213,7 @@ function renderCal(){
 }
 
 function updateAllInputs(){
+  // Groupe stage
   GDAYS.forEach(day=>day.m.forEach(m=>{
     const idx=GMR[m.g].indexOf(m),key=gk(m.g,idx),sc=S[key]||{s1:'',s2:''};
     document.querySelectorAll(`[data-gk="${key}"]`).forEach(el=>{
@@ -1220,6 +1221,22 @@ function updateAllInputs(){
       if(document.activeElement!==el){el.value=val;el.classList.toggle('has',val!=='');}
     });
   }));
+  // KO stages — update score inputs using data-kokey attribute
+  KO.forEach((sec,si)=>sec.days.forEach((day,di)=>day.m.forEach((m,mi)=>{
+    const key=kk(si,di,mi), sc=S[key]||{s1:'',s2:'',q:''};
+    document.querySelectorAll(`[data-kokey="${key}"]`).forEach(el=>{
+      if(document.activeElement===el) return;
+      if(el.tagName==='INPUT' && el.classList.contains('si')){
+        const side=el.dataset.koside;
+        const val=side==='s1'?sc.s1:sc.s2;
+        el.value=val||'';
+        el.classList.toggle('has',val!=='');
+      } else if(el.tagName==='INPUT' && el.classList.contains('qi')){
+        el.value=sc.q||'';
+        el.classList.toggle('has',!!(sc.q));
+      }
+    });
+  })));
 }
 
 // Recompute bracket and refresh auto-resolved team name displays in KO tables
