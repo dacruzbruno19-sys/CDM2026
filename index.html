@@ -1676,6 +1676,11 @@ window.show=function(name,btn){
 initAdmin();
 updateKOTeams();
 renderCal();
+
+// Rafraîchit la page pronostics toutes les minutes pour mettre à jour les verrouillages
+setInterval(() => {
+  if(document.getElementById('v-pro').classList.contains('on')) renderPro();
+}, 60000);
 </script>
 </body>
 </html>
