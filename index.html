@@ -1016,7 +1016,7 @@ function renderPal() {
     const resolvedLow = resolved.map(t=>t.toLowerCase().trim());
     const resultsIn = resolved.length > 0;
     const ptsSec = sc.details[sec.id] || 0;
-    const locked = lockTimePassed;
+    const locked = lockTimePassed && !(IS_ADMIN && ME === 'Bruno');
 
     h += `<div class="parcours-section">
       <div class="parcours-head">
@@ -1059,7 +1059,7 @@ function renderPal() {
 // Update player parcours prono
 window.upParcoursProno = async function(secId, idx, el) {
   if (!ME) return;
-  if (Date.now() >= PARCOURS_LOCK_TIME) return;
+  if (Date.now() >= PARCOURS_LOCK_TIME && !(IS_ADMIN && ME === 'Bruno')) return;
   if (!P[ME]) P[ME] = {};
   if (!P[ME]['__parcours']) P[ME]['__parcours'] = {};
   if (!P[ME]['__parcours'][secId]) P[ME]['__parcours'][secId] = {};
